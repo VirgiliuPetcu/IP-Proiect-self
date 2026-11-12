@@ -1,0 +1,38 @@
+﻿using saxafon.Models;
+using System.ComponentModel.DataAnnotations;
+
+namespace saxafon.DTO
+{
+    public record UserFullDTO(
+         int Id,
+         string first_name,
+         string last_name,
+         string email,
+         string user_name,
+         string? phone_number,
+         Role role,
+         string passwordHash,
+         DateTime created_at,
+         DateTime updated_at,
+         DateTime last_time_active_at,
+         DateTime? deleted_at
+    );
+
+    public record UserCreateDTO(
+       
+        string first_name,
+        string last_name,
+        string email,
+        string user_name,
+        string? phone_number,
+        string password
+    );
+
+    public record UserUpdateDTO(
+        
+    );
+
+
+
+
+}

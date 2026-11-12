@@ -1,0 +1,13 @@
+@saxafon_HostAddress = http://localhost:5255
+
+GET {{saxafon_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+GET {{saxafon_HostAddress}}/api/User
+Accept : application/json 
+
+###
+GET {{saxafon_HostAddress}}/api/User/2
+Accept: application/json
