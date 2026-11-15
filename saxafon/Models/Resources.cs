@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace saxafon.Models
 {
     public enum Status { 
-    
+        //for Resources
         ACTIVE,
         INACTIVE
     }

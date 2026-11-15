@@ -2,12 +2,26 @@
 using saxafon.DTO;
 using Microsoft.EntityFrameworkCore;
 using saxafon.Models;
-using System.Runtime.ExceptionServices;
-using Microsoft.Identity.Client;
+
 
 namespace saxafon.Services
 {
-    public class ReservationService
+
+    public interface IReservationService {
+         Task<IEnumerable<ReservationFullDTO>> GetAllReservations();
+         Task<ReservationFullDTO> GetReservationById(int id);
+         Task<IEnumerable<ReservationFullDTO>> GetReservationByResourceId(int resourceId);
+         Task<IEnumerable<ReservationFullDTO>> GetAllReservationByUserId(int UserID);
+        Task<IEnumerable<ReservationFullDTO>> GetCurrentReservationByUserId(int UserId);
+        Task<ReservationCancelResponseDTO> CancelReservation(ReservationCancelDTO reservation);
+        Task<IEnumerable<ReservationViewDTO>> ShowCurrentWeekReservations(int resoruceId);
+
+        Task<ReservationFullDTO> CreateReservation(ReservationCreateDTO reservation);
+
+    }
+
+
+    public class ReservationService : IReservationService
     {
 
         private readonly AppDbContext context;
@@ -29,7 +43,35 @@ namespace saxafon.Services
             )).ToListAsync();
         }
 
-        public async Task<IEnumerable<ReservationFullDTO>> GetReservationByUserId(int UserID)
+        public async Task<ReservationFullDTO> GetReservationById(int id ) { 
+            var result = context.Reservations.Where(r => r.Id == id).Select(r => new ReservationFullDTO(
+                r.Id,
+                r.ResourceId,
+                r.UserId,
+                r.purpose,
+                r.status_rezervare,
+                r.start_time,
+                r.end_time,
+                r.created_at
+            ));
+            return await result.FirstOrDefaultAsync();
+
+        }
+        public async Task<IEnumerable<ReservationFullDTO>> GetReservationByResourceId(int resourceId) { 
+            var result = context.Reservations.Where(r => r.ResourceId == resourceId).Select(r => new ReservationFullDTO(
+                r.Id,
+                r.ResourceId,
+                r.UserId,
+                r.purpose,
+                r.status_rezervare,
+                r.start_time,
+                r.end_time,
+                r.created_at
+            ));
+            return await result.ToListAsync();
+        }
+
+        public async Task<IEnumerable<ReservationFullDTO>> GetAllReservationByUserId(int UserID)
         {
             var reservation = context.Reservations.Where(r => r.UserId == UserID).Select(e => new ReservationFullDTO(
                 e.Id,

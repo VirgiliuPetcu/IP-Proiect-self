@@ -1,4 +1,5 @@
 using IPFront;
+using IPFront.Service;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -10,7 +11,7 @@ var apiBaseUrl = builder.Configuration["ApiBaseUrl"]
     ?? throw new InvalidOperationException("ApiBaseUrl is missing in appsettings.json");
 
 // Register Typed HttpClients pointing to your saxafon API
-builder.Services.AddHttpClient<R>(client =>
+builder.Services.AddHttpClient<UserApiClient>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
 });

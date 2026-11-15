@@ -1,6 +1,6 @@
-﻿using saxafon.Models;
+﻿
 
-namespace saxafon.DTO
+namespace Shared.DTO
 {
     public record ResourcesFullDTO(
 

@@ -1,7 +1,5 @@
-﻿using saxafon.Models;
-using System.ComponentModel.DataAnnotations;
-
-namespace saxafon.DTO
+﻿
+namespace Shared.DTO
 {
     public record UserFullDTO(
          int Id,

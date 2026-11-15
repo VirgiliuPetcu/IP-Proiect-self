@@ -13,6 +13,9 @@ namespace saxafon.Services
         Task<UserMinDTO> GetUserById(int id);
         Task<UserMinDTO> CreateUser(UserRegisterDTO userRegisterDTO);
         Task<UserResponseAuthDTO> LoginUser(UserLoginDTO userLoginDTO);
+
+
+
     }
     public class UserService : IUserService
     {

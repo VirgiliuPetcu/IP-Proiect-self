@@ -1,7 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using saxafon.Models;
-
-namespace saxafon.DTO
+﻿
+namespace Shared.DTO
 {
 
     public record ReservationFullDTO(
