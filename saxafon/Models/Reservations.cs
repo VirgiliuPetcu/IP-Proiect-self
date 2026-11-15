@@ -7,7 +7,7 @@ namespace saxafon.Models
         CANCELED,
         REJECTED,
         PENDING,
-        EXPIRED
+        
     
     }
     public class Reservations

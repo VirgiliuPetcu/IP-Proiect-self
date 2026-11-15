@@ -4,6 +4,9 @@ namespace saxafon.Models
 {
     public class Equipments : Resources
     {
+
+        [MaxLength(50)]
+        public string type { get; set; } = null!;
         [MaxLength(100)]
         public string? equipment_model { get; set; }
         [MaxLength(500)]

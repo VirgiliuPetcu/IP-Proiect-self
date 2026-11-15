@@ -22,7 +22,7 @@ namespace saxafon.Models
         public Status status { get; set; }
         public bool is_approval_needed { get; set; }
         public DateTime created_at { get; set; }
-        public DateTime? updated_at { get; set; }
+        public DateTime updated_at { get; set; }
         public DateTime? deleted_at { get; set; }
     }
 }

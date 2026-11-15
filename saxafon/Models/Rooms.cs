@@ -9,7 +9,7 @@ namespace saxafon.Models
         public int? capacity { get; set; }
         [MaxLength(20)]
      
-        public string?  Building_id { get; set; }
+        public string? buildingId { get; set; }
       
     }
 }

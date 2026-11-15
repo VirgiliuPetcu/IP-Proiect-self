@@ -18,7 +18,10 @@ namespace saxafon.DTO
          DateTime? deleted_at
     );
 
-    public record UserCreateDTO(
+
+
+      
+    public record UserRegisterDTO(
        
         string first_name,
         string last_name,
@@ -28,9 +31,23 @@ namespace saxafon.DTO
         string password
     );
 
-    public record UserUpdateDTO(
-        
+    public record UserMinDTO(
+        int Id,
+        string first_name,
+        string last_name,
+        string email
     );
+
+    public record UserLoginDTO(
+        string email_or_username,
+        string password
+    );
+
+    public record UserResponseAuthDTO(
+        int id 
+    );
+
+
 
 
 

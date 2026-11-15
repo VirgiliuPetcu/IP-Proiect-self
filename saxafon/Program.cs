@@ -11,6 +11,17 @@ builder.Services.AddOpenApi();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Nu sa gasit ConnectionString");
 builder.Services.AddDbContext<saxafon.Data.AppDbContext>(options => options.UseMySQL(connectionString));
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<saxafon.Services.IUserService, saxafon.Services.UserService>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient", policy =>
+    {
+        policy.WithOrigins("https://localhost:5255", "http://localhost:5007") 
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
