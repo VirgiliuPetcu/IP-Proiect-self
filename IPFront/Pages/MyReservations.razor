@@ -1,0 +1,259 @@
+﻿@page "/my-reservations"
+@* TODO: Injectează serviciile necesare (ex: @inject HttpClient Http, @inject NavigationManager Nav) *@
+
+<PageTitle>My Reservations - UniLab</PageTitle>
+
+<div class="unilab-layout">
+    @* ================= SIDEBAR ================= *@
+    
+
+    @* ================= MAIN CONTENT ================= *@
+    <div class="main-wrapper">
+        @* Top Header *@
+        <header class="top-header">
+            
+        </header>
+
+        <main class="content-area">
+            @* Breadcrumbs & Title Row *@
+            <div class="breadcrumbs">My bookings &nbsp;/&nbsp; My reservations</div>
+
+            <div class="page-header-row">
+                <div>
+                    <h1 class="page-title">My Reservations</h1>
+                    <p class="page-subtitle">Manage your lab bookings and track approvals.</p>
+                </div>
+                <div class="page-header-actions">
+                    @* TODO: Leagă evenimentul @onclick la navigarea spre pagina de creare rezervare / deschiderea unui modal *@
+                    <button type="button" class="btn-primary-dark" @onclick="OnBookResourceClicked">
+                        Book a resource
+                    </button>
+                    @* TODO: Afișează data și ora curentă dinamic (ex: DateTime.Now.ToString("ddd, dd MMM yyyy · HH:mm")) *@
+                    <span class="current-timestamp">Mon, 26 Oct 2026 · 08:50</span>
+                </div>
+            </div>
+
+            @* KPI Summary Cards *@
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-top">
+                        <span class="stat-label">Active Bookings</span>
+                        <img src="images/icon-calendar.svg" alt="" class="stat-icon" />
+                    </div>
+                    @* TODO: Leagă valorile statistice la datele calculate din backend *@
+                    <div class="stat-value">3</div>
+                    <div class="stat-sub">Approved · 1 session today</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-top">
+                        <span class="stat-label">Pending Approval</span>
+                        <img src="images/icon-clock.svg" alt="" class="stat-icon" />
+                    </div>
+                    @* TODO: Leagă numărul de rezervări în așteptare *@
+                    <div class="stat-value">2</div>
+                    <div class="stat-sub">Awaiting an administrator's decision</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-top">
+                        <span class="stat-label">Completed</span>
+                        <img src="images/icon-check.svg" alt="" class="stat-icon" />
+                    </div>
+                    @* TODO: Leagă numărul total de rezervări finalizate *@
+                    <div class="stat-value">4</div>
+                    <div class="stat-sub">Completed sessions · all time</div>
+                </div>
+            </section>
+
+            @* Main Table Card *@
+            <section class="table-card">
+                @* Filter Tabs *@
+                <div class="tabs-bar">
+                    @* TODO: Leagă schimbarea tab-ului activ (@onclick) pentru a filtra lista între Upcoming, Pending și History *@
+                    <button type="button" class="tab-btn @(activeTab == "Upcoming" ? "active" : "")" @onclick='() => activeTab = "Upcoming"'>
+                        <span>Upcoming</span>
+                        <span class="tab-badge @(activeTab == "Upcoming" ? "badge-dark" : "badge-light")">3</span>
+                    </button>
+
+                    <button type="button" class="tab-btn @(activeTab == "Pending" ? "active" : "")" @onclick='() => activeTab = "Pending"'>
+                        <span>Pending</span>
+                        <span class="tab-badge @(activeTab == "Pending" ? "badge-dark" : "badge-light")">2</span>
+                    </button>
+
+                    <button type="button" class="tab-btn @(activeTab == "History" ? "active" : "")" @onclick='() => activeTab = "History"'>
+                        <span>History</span>
+                        <span class="tab-badge @(activeTab == "History" ? "badge-dark" : "badge-light")">5</span>
+                    </button>
+                </div>
+
+                @* Table Toolbar (Title + Search + Category Select) *@
+                <div class="table-toolbar">
+                    <div>
+                        <h2 class="table-title">Upcoming reservations</h2>
+                        <p class="table-subtitle">Approved reservations, ordered by next session.</p>
+                    </div>
+
+                    <div class="toolbar-controls">
+                        @* TODO: Leagă input-ul de căutare la o proprietate (@bind="searchQuery" @bind:event="oninput") pentru filtrare în timp real *@
+                        <div class="search-box">
+                            <img src="images/icon-search.svg" alt="" class="search-icon" />
+                            <input type="text" placeholder="Search reservations" @bind="searchQuery" @bind:event="oninput" />
+                        </div>
+
+                        @* TODO: Populează opțiunile din baza de date / API și leagă selecția la @bind="selectedCategory" *@
+                        <div class="select-wrapper">
+                            <select @bind="selectedCategory">
+                                <option value="">All categories</option>
+                                <option value="Analytical equipment">Analytical equipment</option>
+                                <option value="Meeting room">Meeting room</option>
+                                <option value="Materials characterization">Materials characterization</option>
+                            </select>
+                            <img src="images/icon-down-arrow.svg" alt="" class="select-chevron" />
+                        </div>
+                    </div>
+                </div>
+
+                @* Data Table *@
+                <div class="table-responsive">
+                    <table class="reservations-table">
+                        <thead>
+                            <tr>
+                                <th>Resource / Room Name</th>
+                                <th>Category</th>
+                                <th>Date &amp; Time Slot</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @* TODO: Înlocuiește rândurile statice de mai jos cu o buclă @foreach (var item in FilteredReservations) alimentată din API *@
+                            <tr>
+                                <td>
+                                    <div class="res-name">UV–Vis spectrophotometer</div>
+                                    <div class="res-location">Chemistry Building · C-108</div>
+                                    <div class="res-code">BK-1048</div>
+                                </td>
+                                <td class="res-category">Analytical equipment</td>
+                                <td>
+                                    <div class="res-date">Mon, 26 Oct 2026</div>
+                                    <div class="res-time">09:00–11:00 · 2 hours</div>
+                                </td>
+                                <td>
+                                    <span class="status-pill approved">
+                                        <img src="images/icon-check.svg" alt="" class="pill-icon" />
+                                        Approved
+                                    </span>
+                                    <div class="status-sub">Today</div>
+                                </td>
+                                <td class="actions-cell">
+                                    @* TODO: Leagă butoanele Cancel și Report Issue la metodele care primesc ID-ul rezervării (ex: () => CancelBooking("BK-1048")) *@
+                                    <button type="button" class="action-link" @onclick='() => OnCancelClicked("BK-1048")'>Cancel</button>
+                                    <button type="button" class="action-link" @onclick='() => OnReportIssueClicked("BK-1048")'>Report Issue</button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <div class="res-name">Research meeting room</div>
+                                    <div class="res-location">Engineering Building · B-102</div>
+                                    <div class="res-code">BK-1052</div>
+                                </td>
+                                <td class="res-category">Meeting room</td>
+                                <td>
+                                    <div class="res-date">Tue, 27 Oct 2026</div>
+                                    <div class="res-time">14:00–15:00 · 1 hour</div>
+                                </td>
+                                <td>
+                                    <span class="status-pill approved">
+                                        <img src="images/icon-check.svg" alt="" class="pill-icon" />
+                                        Approved
+                                    </span>
+                                    <div class="status-sub">Confirmed on 23 Oct</div>
+                                </td>
+                                <td class="actions-cell">
+                                    @* TODO: Leagă acțiunile pentru acest rând *@
+                                    <button type="button" class="action-link" @onclick='() => OnCancelClicked("BK-1052")'>Cancel</button>
+                                    <button type="button" class="action-link" @onclick='() => OnReportIssueClicked("BK-1052")'>Report Issue</button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <div class="res-name">X-ray diffractometer</div>
+                                    <div class="res-location">Engineering Building · B-216</div>
+                                    <div class="res-code">BK-1059</div>
+                                </td>
+                                <td class="res-category">Materials characterization</td>
+                                <td>
+                                    <div class="res-date">Thu, 29 Oct 2026</div>
+                                    <div class="res-time">10:00–12:00 · 2 hours</div>
+                                </td>
+                                <td>
+                                    <span class="status-pill approved">
+                                        <img src="images/icon-check.svg" alt="" class="pill-icon" />
+                                        Approved
+                                    </span>
+                                    <div class="status-sub">Confirmed on 24 Oct</div>
+                                </td>
+                                <td class="actions-cell">
+                                    @* TODO: Leagă acțiunile pentru acest rând *@
+                                    <button type="button" class="action-link" @onclick='() => OnCancelClicked("BK-1059")'>Cancel</button>
+                                    <button type="button" class="action-link" @onclick='() => OnReportIssueClicked("BK-1059")'>Report Issue</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                @* Table Footer *@
+                <div class="table-footer">
+                    @* TODO: Actualizează contorul dinamic în funcție de numărul elementelor filtrate *@
+                    <span>Showing 3 of 3 reservations</span>
+                    <span>All times local · GMT+00:00</span>
+                </div>
+            </section>
+
+            @* Bottom Info Banner *@
+            <section class="info-banner">
+                <div class="info-banner-left">
+                    <img src="images/icon-exclamation.svg" alt="" class="info-icon" />
+                    <div>
+                        <div class="info-title">Before your session</div>
+                        <div class="info-desc">Cancel as early as possible if your plans change to free the slot for others.</div>
+                    </div>
+                </div>
+                @* TODO: Adaugă link / modal pentru regulamentul de utilizare *@
+                <a href="/guidelines" class="guidelines-link">Help &amp; guidelines</a>
+            </section>
+        </main>
+    </div>
+</div>
+
+@code {
+    // TODO: Definește aici modelele DTO / ViewModel pentru rezervări și încarcă datele în OnInitializedAsync()
+    private string activeTab = "Upcoming";
+    private string searchQuery = string.Empty;
+    private string selectedCategory = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // TODO: Apelează endpoint-ul din backend (ex: await Http.GetFromJsonAsync<List<ReservationDto>>("api/reservations/my"))
+        await Task.CompletedTask;
+    }
+
+    private void OnBookResourceClicked()
+    {
+        // TODO: Navighează către pagina de rezervare nouă sau deschide un dialog modal
+    }
+
+    private void OnCancelClicked(string bookingCode)
+    {
+        // TODO: Apelează endpoint-ul de anulare rezervare și reîmprospătează lista
+    }
+
+    private void OnReportIssueClicked(string bookingCode)
+    {
+        // TODO: Deschide un modal de raportare problemă pentru rezervarea selectată
+    }
+}

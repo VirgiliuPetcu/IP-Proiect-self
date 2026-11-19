@@ -1,15 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+
 namespace saxafon.Models
 {
-    public enum ReservationStatus { 
-        CONFIRMED,
-        CANCELED,
-        REJECTED,
-        PENDING,
-        
-    
-    }
+   
     public class Reservations
     {
         [Key]
@@ -21,7 +15,7 @@ namespace saxafon.Models
 
         [MaxLength(300)]
         public string? purpose { get; set; }
-        public ReservationStatus status_rezervare { get; set; }
+        public Shared.ReservationStatus status_rezervare { get; set; }
         public DateTime start_time { get; set; } 
         public DateTime end_time { get; set; }
         public DateTime created_at { get; set; }

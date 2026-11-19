@@ -15,15 +15,15 @@ namespace IPFront.Service
             httpClient = _httpClient;
         }
 
-        public async Task<UserMinDTO> getUsersAsync(int id)
+        public async Task<IEnumerable<UserMinDTO>> getUsersAsync()
         {
-            return await httpClient.GetFromJsonAsync<UserMinDTO>($"api/User/");
+            return await httpClient.GetFromJsonAsync<IEnumerable<UserMinDTO>>($"api/User/getUser");
 
         }
 
         public async Task<UserMinDTO> getUserByIdAsync(int id)
         {
-            return await httpClient.GetFromJsonAsync<UserMinDTO>($"api/User/getUser?id={id}");
+            return await httpClient.GetFromJsonAsync<UserMinDTO>($"api/User/getUserId/{id}");
         }
 
         public async Task<UserMinDTO> createUserAsync(UserRegisterDTO userRegisterDTO)

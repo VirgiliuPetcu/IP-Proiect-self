@@ -1,5 +1,5 @@
 ﻿using saxafon.Data;
-using saxafon.DTO;
+using Shared.DTO;
 using saxafon.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -60,7 +60,7 @@ namespace saxafon.Services
                 created_at = DateTime.UtcNow,
                 updated_at = DateTime.UtcNow,
                 last_time_active_at = DateTime.UtcNow,
-                role = Role.USER
+                role = Shared.Role.USER
             };
             
 

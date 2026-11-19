@@ -36,6 +36,9 @@ namespace Shared.DTO
             string? buildingId
      );
 
+
+  
+
     public record ResourcesRoomCreateDTO(
 
             string resource_name,

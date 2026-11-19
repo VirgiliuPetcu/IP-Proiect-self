@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using saxafon.Models;
 using saxafon.Services;
-using saxafon.DTO;
+using Shared.DTO;
 
 
 namespace saxafon.Controllers
@@ -19,15 +19,15 @@ namespace saxafon.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet("getUser")]
         public  async Task<ActionResult<IEnumerable<UserMinDTO>>> getUsers()
         {
             return  Ok( await userService.GetAllUsers());
 
         }
 
-        [HttpGet("getUser")]
-        public async Task<ActionResult<UserMinDTO>> getUserById([FromQuery] int id)
+        [HttpGet("getUserId/{id}")]
+        public async Task<ActionResult<UserMinDTO>> getUserById( int id)
         {
            
             var user = await userService.GetUserById(id);

@@ -9,15 +9,20 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Nu sa gasit ConnectionString");
+
 builder.Services.AddDbContext<saxafon.Data.AppDbContext>(options => options.UseMySQL(connectionString));
 builder.Services.AddControllersWithViews();
+
 builder.Services.AddScoped<saxafon.Services.IUserService, saxafon.Services.UserService>();
 
+var clientAdress = builder.Configuration["ClientAdressURL:ClientAdress"] ?? throw new InvalidOperationException("ClientBaseUrl is missing in appsettings.json");
+
+var AllowCors = "AllowBlazorClient";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowBlazorClient", policy =>
+    options.AddPolicy(AllowCors, policy =>
     {
-        policy.WithOrigins("https://localhost:5255", "http://localhost:5007") 
+        policy.WithOrigins(clientAdress) 
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -30,7 +35,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
+app.UseCors(AllowCors);
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

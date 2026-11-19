@@ -1,5 +1,5 @@
 ﻿using saxafon.Data;
-using saxafon.DTO;
+using Shared.DTO;
 using Microsoft.EntityFrameworkCore;
 using saxafon.Models;
 
@@ -113,7 +113,7 @@ namespace saxafon.Services
                 throw new KeyNotFoundException("Reservation not found.");
             }
 
-            query.status_rezervare = ReservationStatus.CANCELED;
+            query.status_rezervare = Shared.ReservationStatus.CANCELED;
             query.canceled_at = DateTime.UtcNow;
             await context.SaveChangesAsync();
 
@@ -144,7 +144,7 @@ namespace saxafon.Services
             if (reservation.end_time <= reservation.start_time) { 
                 throw new ArgumentException("End time must be greater than start time.");
             }
-            var isOverlap = await  context.Reservations.AnyAsync(r => r.ResourceId == reservation.resourceId  && r.start_time < reservation.end_time && r.end_time > reservation.start_time && r.status_rezervare != ReservationStatus.CANCELED);
+            var isOverlap = await  context.Reservations.AnyAsync(r => r.ResourceId == reservation.resourceId  && r.start_time < reservation.end_time && r.end_time > reservation.start_time && r.status_rezervare != Shared.ReservationStatus.CANCELED);
 
             if (isOverlap) { 
                 throw new InvalidOperationException("The reservation time overlaps with an existing reservation.");
@@ -157,7 +157,7 @@ namespace saxafon.Services
                 ResourceId = reservation.resourceId,
                 UserId = reservation.userId,
                 purpose = reservation.prupose,
-                status_rezervare = ReservationStatus.PENDING,
+                status_rezervare = Shared.ReservationStatus.PENDING,
                 start_time = reservation.start_time,
                 end_time = reservation.end_time,
                 created_at = DateTime.UtcNow,

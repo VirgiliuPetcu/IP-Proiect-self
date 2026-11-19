@@ -32,9 +32,9 @@ namespace saxafon.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Resources>().Property(e => e.status).HasConversion(v => v.ToString(), v => (Status)Enum.Parse(typeof(Status), v));
-            modelBuilder.Entity<Reservations>().Property(e => e.status_rezervare).HasConversion(v => v.ToString(), v => (ReservationStatus)Enum.Parse(typeof(ReservationStatus), v));
-            modelBuilder.Entity<User>().Property(e => e.role).HasConversion(v => v.ToString(), v => (Role)Enum.Parse(typeof(Role), v));
+            modelBuilder.Entity<Resources>().Property(e => e.status).HasConversion(v => v.ToString(), v => (Shared.Status)Enum.Parse(typeof(Shared.Status), v));
+            modelBuilder.Entity<Reservations>().Property(e => e.status_rezervare).HasConversion(v => v.ToString(), v => (Shared.ReservationStatus)Enum.Parse(typeof(Shared.ReservationStatus), v));
+            modelBuilder.Entity<User>().Property(e => e.role).HasConversion(v => v.ToString(), v => (Shared.Role)Enum.Parse(typeof(Shared.Role), v));
          
             base.OnModelCreating(modelBuilder);
         }

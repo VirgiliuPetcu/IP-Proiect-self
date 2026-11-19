@@ -1,0 +1,23 @@
+﻿<div class="user-profile-pill">
+    <div class="avatar-circle">
+        <img src="images/icon-profile.svg" alt="User avatar" class="avatar-icon" />
+    </div>
+    <div class="user-info">
+        @* TODO: Înlocuiește datele utilizatorului cu informațiile din sesiunea curentă / UserMinDTO *@
+        <span class="user-name">@dateUtilizator.first_name @dateUtilizator.last_name</span>
+        <span class="user-role">@dateUtilizator.role.ToString() · Engineering</span>
+    </div>
+    @* TODO: Adaugă meniu dropdown pentru profil / logout la click *@
+    <button type="button" class="icon-btn-subtle" title="User menu">
+        <img src="images/icon-down-arrow.svg" alt="Expand" class="chevron-icon" />
+    </button>
+</div>
+
+@code {
+
+
+    [Parameter] public  UserMinDTO dateUtilizator { get; set; }
+
+
+
+}

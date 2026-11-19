@@ -29,11 +29,19 @@ namespace Shared.DTO
         string password
     );
 
+
+    public record UserProfileDate(
+        string name,
+        string 
+        
+    );
+
     public record UserMinDTO(
         int Id,
         string first_name,
         string last_name,
         string email
+        
     );
 
     public record UserLoginDTO(

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using saxafon.Data;
-using saxafon.DTO;
+using Shared.DTO;
 using saxafon.Models;
 
 namespace saxafon.Services
@@ -77,7 +77,7 @@ namespace saxafon.Services
         {
             //only ACTIVE  equipment
 
-            var query  =  context.Resources.Where(e => e.deleted_at == null && e.status == Status.ACTIVE);
+            var query  =  context.Resources.Where(e => e.deleted_at == null && e.status ==  Shared.Status.ACTIVE);
             if (limit > 0)
             {
                 query = query.Take(limit);
@@ -122,25 +122,41 @@ namespace saxafon.Services
                 room.buildingId
             );
         }
-        public async Task<Equipments> CreateEquipment(ResourcesEquipmentCreateDTO createEquipment ) {
+        public async Task<ResourcesMinimalDTO> CreateEquipment(ResourcesEquipmentCreateDTO createEquipment ) {
 
-            var equipment = new Equipments()
+            var equipment = new Equipments
             {
                 resource_name = createEquipment.resource_name,
                 ParentId = createEquipment.ParentId,
                 status = createEquipment.status,
                 is_approval_needed = createEquipment.is_approval_needed,
                 equipment_model = createEquipment.equipment_model,
+                created_at = DateTime.UtcNow,
+                updated_at = DateTime.UtcNow,
                 description = createEquipment.description,
                 serial_number = createEquipment.serial_number,
-                inventory_code = createEquipment.inventory_code,
-                created_at = DateTime.UtcNow,
-                updated_at = DateTime.UtcNow
-                
+                inventory_code = createEquipment.inventory_code
+
             };
+            
+
+
+
             context.Resources.Add(equipment);
             await context.SaveChangesAsync();
-            return equipment;
+            return new ResourcesMinimalDTO(
+                equipment.Id,
+                equipment.resource_name,
+                equipment.ParentId,
+                equipment.status,
+                equipment.is_approval_needed,
+                equipment.equipment_model,
+                equipment.description,
+                equipment.serial_number,
+                equipment.inventory_code,
+                null,
+                null
+            );
         }
 
 

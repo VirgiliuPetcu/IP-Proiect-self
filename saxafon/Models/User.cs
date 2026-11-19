@@ -1,15 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 using System.ComponentModel.DataAnnotations;
+using Shared.DTO;
 
 namespace saxafon.Models
 {
-    public enum Role { 
-        USER, 
-        ADMIN 
-    
-    }
-
+ 
 
     [Index(nameof(email),IsUnique =true)]
     [Index(nameof(user_name),IsUnique =true)]
@@ -28,7 +24,7 @@ namespace saxafon.Models
         public string user_name { get; set; } = null!;
         [MaxLength(13)]
         public string? phone_number { get; set; }
-        public Role role { get; set; }
+        public Shared.Role role { get; set; }
         [MaxLength(256)]
 
         public string passwordHash { get; set; } = null!;

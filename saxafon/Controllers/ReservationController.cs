@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using saxafon.DTO;
+using Shared.DTO;
 using saxafon.Services;
 
 namespace saxafon.Controllers
@@ -15,15 +15,14 @@ namespace saxafon.Controllers
         }
 
 
-        [HttpGet]
-
+        [HttpGet("getAll")]
         public async Task<ActionResult<IEnumerable<ReservationFullDTO>>> getAllReservationApi() {
             var result = await  reservationService.GetAllReservations();
             return Ok(result);
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ReservationFullDTO>>> getReservationByIdApi(int id) {
+        public async Task<ActionResult<IEnumerable<ReservationFullDTO>>> getReservationByIdApi([FromQuery] int id) {
             var result = await reservationService.GetReservationById(id);
             if (result == null) {
                 return NotFound();
@@ -31,8 +30,8 @@ namespace saxafon.Controllers
             return Ok(result);
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ReservationFullDTO>>> getReservationByResourceIdApi(int resourceId)
+        [HttpGet()]
+        public async Task<ActionResult<IEnumerable<ReservationFullDTO>>> getReservationByResourceIdApi([FromQuery]int resourceId)
         {
             var result = await reservationService.GetReservationByResourceId(resourceId);
             if (result == null)
@@ -43,8 +42,9 @@ namespace saxafon.Controllers
         }
 
 
+
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ReservationFullDTO>>> geAlltReservationByUserIdApi(int userId)
+        public async Task<ActionResult<IEnumerable<ReservationFullDTO>>> geAlltReservationByUserIdApi([FromQuery] int userId)
         {
             var result = await reservationService.GetAllReservationByUserId(userId);
             if (result == null)
@@ -55,7 +55,8 @@ namespace saxafon.Controllers
         }
 
 
-        [HttpGet]
+
+        [HttpGet("current/{userId}")]
         public async Task<ActionResult<IEnumerable<ReservationViewDTO>>> GetCurrentReservationByUserIdApi(int userId)
         {
             var result = await reservationService.GetCurrentReservationByUserId(userId);
@@ -66,7 +67,7 @@ namespace saxafon.Controllers
             return Ok(result);
         }
 
-        [HttpPost]
+        [HttpPost("cancel")]
         public async Task<ActionResult<ReservationCancelResponseDTO>> CancelReservationApi(ReservationCancelDTO reservation) { 
             
             var result = await reservationService.CancelReservation(reservation);
@@ -77,7 +78,7 @@ namespace saxafon.Controllers
             return Ok(result);
         }
 
-        [HttpGet]
+        [HttpGet("thisWeek")]
         public async Task<ActionResult<ReservationViewDTO>> ShowCurrentWeekReservationsApi(int resourceId)
         {
             var result = await reservationService.ShowCurrentWeekReservations(resourceId);
@@ -89,7 +90,7 @@ namespace saxafon.Controllers
         }
         
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<ActionResult<ReservationFullDTO>> CreateReservationApi(ReservationCreateDTO reservation) {
             var result = await reservationService.CreateReservation(reservation);
             if (result == null) {
