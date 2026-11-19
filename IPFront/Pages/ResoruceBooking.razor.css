@@ -1,0 +1,518 @@
+/* CSS for ResoruceBooking component */
+.resource-details-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #fafafa;
+    color: #18181b;
+}
+
+/* Top Bar */
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 2rem;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e4e4e7;
+}
+
+.user-menu-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+}
+
+.user-avatar-img {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #f4f4f5;
+}
+
+.user-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.user-subtitle {
+    font-size: 0.75rem;
+    color: #71717a;
+}
+
+.chevron-icon,
+.badge-icon,
+.inline-icon,
+.field-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+}
+
+/* Main Two-Column Layout */
+.details-layout {
+    display: grid;
+    grid-template-columns: minmax(280px, 340px) 1fr;
+    gap: 1.5rem;
+    padding: 1.75rem 2rem;
+    align-items: start;
+}
+
+/* Left Resource Info Card */
+.resource-info-card,
+.workspace-card {
+    background-color: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 10px;
+    padding: 1.5rem;
+}
+
+.resource-info-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.eyebrow-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #71717a;
+}
+
+.resource-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.resource-description {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.875rem;
+    color: #52525b;
+    line-height: 1.5;
+}
+
+.approval-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    align-self: flex-start;
+    margin-top: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    background-color: #f4f4f5;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #3f3f46;
+}
+
+.section-divider {
+    border: none;
+    border-top: 1px solid #f4f4f5;
+    margin: 0;
+}
+
+.section-heading {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+    .section-heading.with-icon {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+    }
+
+.specs-list {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.spec-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.85rem;
+}
+
+.spec-key {
+    color: #71717a;
+}
+
+.spec-value {
+    margin: 0;
+    font-weight: 500;
+    text-align: right;
+}
+
+.location-primary {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.location-secondary {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #71717a;
+}
+
+.rules-list {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #52525b;
+}
+
+.supervisor-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1rem;
+    background-color: #f4f4f5;
+    border-radius: 8px;
+}
+
+.supervisor-name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.9rem;
+}
+
+.supervisor-email {
+    font-size: 0.8rem;
+    color: #71717a;
+}
+
+/* Right Workspace Column */
+.booking-workspace {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 600;
+    }
+
+.muted-meta {
+    font-size: 0.8rem;
+    color: #71717a;
+}
+
+/* Weekly Availability Calendar */
+.calendar-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.week-navigator {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.icon-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #e4e4e7;
+    border-radius: 6px;
+    background: #ffffff;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.week-range-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.calendar-legend {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: #52525b;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.legend-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+}
+
+    .legend-swatch.available {
+        background: #ffffff;
+        border: 1px solid #d4d4d8;
+    }
+
+    .legend-swatch.blocked {
+        background: #e4e4e7;
+    }
+
+    .legend-swatch.selected {
+        background: #27272a;
+    }
+
+.schedule-grid-wrapper {
+    overflow-x: auto;
+}
+
+.schedule-grid {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 0.78rem;
+}
+
+    .schedule-grid th,
+    .schedule-grid td {
+        border: 1px solid #e4e4e7;
+        text-align: center;
+        padding: 0.45rem 0.35rem;
+    }
+
+.time-col-header {
+    width: 64px;
+    background-color: #f4f4f5;
+    color: #71717a;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.day-col-header {
+    background-color: #fafafa;
+    font-weight: 500;
+    color: #52525b;
+}
+
+    .day-col-header.selected-day {
+        background-color: #27272a;
+        color: #ffffff;
+    }
+
+.day-name {
+    margin-right: 0.25rem;
+    font-weight: 400;
+}
+
+.time-cell {
+    color: #71717a;
+    background-color: #ffffff;
+    font-variant-numeric: tabular-nums;
+}
+
+.slot-cell {
+    height: 30px;
+    vertical-align: middle;
+}
+
+.slot-available {
+    background-color: #ffffff;
+    cursor: pointer;
+}
+
+    .slot-available:hover {
+        background-color: #f4f4f5;
+    }
+
+.slot-blocked,
+.slot-closed {
+    background-color: #e4e4e7;
+    color: #71717a;
+    cursor: not-allowed;
+}
+
+.slot-selected {
+    background-color: #27272a;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.slot-label-group {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.72rem;
+    line-height: 1.2;
+}
+
+.calendar-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.85rem;
+    font-size: 0.8rem;
+    color: #71717a;
+}
+
+/* Booking Details Form */
+.booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.form-row-three {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+    .form-field label {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #3f3f46;
+    }
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid #d4d4d8;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    background-color: #ffffff;
+    color: #18181b;
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+    .input-with-icon .field-icon {
+        position: absolute;
+        left: 0.65rem;
+        pointer-events: none;
+    }
+
+    .input-with-icon .form-select {
+        padding-left: 2.1rem;
+    }
+
+.form-row-project {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.project-select-field {
+    flex: 1;
+}
+
+.duration-summary {
+    font-size: 0.875rem;
+    color: #3f3f46;
+    white-space: nowrap;
+    padding-bottom: 0.6rem;
+}
+
+.form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #f4f4f5;
+}
+
+.approval-note {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.8rem;
+    color: #71717a;
+}
+
+.btn-submit {
+    padding: 0.7rem 1.35rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #27272a;
+    color: #ffffff;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+    .btn-submit:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+.state-message {
+    padding: 2rem;
+    text-align: center;
+    color: #71717a;
+}
+
+    .state-message.error,
+    .submission-feedback {
+        color: #dc2626;
+        font-size: 0.85rem;
+    }
+
+@media (max-width: 960px) {
+    .details-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .form-row-three {
+        grid-template-columns: 1fr;
+    }
+}

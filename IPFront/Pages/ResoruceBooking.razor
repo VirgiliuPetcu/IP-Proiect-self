@@ -1,0 +1,375 @@
+﻿@page "/catalog/{ResourceId:int}"
+@inject NavigationManager NavigationManager
+@* TODO: Inject your API clients and user state services here, e.g.:
+@inject ResourceApiClient ResourceApi
+@inject ReservationApiClient ReservationApi
+@inject UserApiClient UserApi
+*@
+
+<div class="resource-details-page">
+
+    @* =========================================================================
+       POTENTIAL COMPONENT: TopHeaderBar.razor (or UserMenu.razor)
+       Shared across pages; can wrap your existing <UserAvatar /> component.
+       ========================================================================= *@
+    <header class="top-bar">
+        <div class="top-bar-spacer">
+            @* Optional: Back to catalog breadcrumb/button if desired *@
+        </div>
+
+        <button type="button" class="user-menu-trigger" @onclick="ToggleUserMenu">
+            @* TODO: Swap <img> with <UserAvatar /> once wired to user state *@
+            <img src="@(string.IsNullOrWhiteSpace(CurrentUser?.AvatarUrl) ? "images/icon-profile.svg" : CurrentUser.AvatarUrl)"
+                 alt="User profile"
+                 class="user-avatar-img" />
+            <div class="user-meta">
+                <span class="user-name">@CurrentUser?.FullName</span>
+                <span class="user-subtitle">@CurrentUser?.RoleAndDepartment</span>
+            </div>
+            <img src="images/icon-down-arrow.svg" alt="Menu" class="chevron-icon" />
+        </button>
+
+        @* TODO: Render user dropdown menu when IsUserMenuOpen == true *@
+    </header>
+
+    @if (IsLoading)
+    {
+        <div class="state-message">Loading resource details...</div>
+    }
+    else if (!string.IsNullOrWhiteSpace(ErrorMessage))
+    {
+        <div class="state-message error">@ErrorMessage</div>
+    }
+    else if (Resource is not null)
+    {
+        <main class="details-layout">
+
+            @* =========================================================================
+               LEFT COLUMN — POTENTIAL COMPONENT: ResourceInfoPanel.razor
+               Parameters: Resource (EquipmentDTO / ResourceDetailViewModel)
+               ========================================================================= *@
+            <aside class="resource-info-card">
+                <section class="info-section">
+                    <span class="eyebrow-label">@Resource.CategoryName</span>
+                    <h1 class="resource-title">@Resource.Name</h1>
+                    <p class="resource-description">@Resource.Description</p>
+
+                    @if (Resource.RequiresSupervisorApproval)
+                    {
+                        @* POTENTIAL COMPONENT: InfoBadge.razor *@
+                        <div class="approval-badge">
+                            <img src="images/icon-exclamation.svg" alt="Notice" class="badge-icon" />
+                            <span>Supervisor approval required</span>
+                        </div>
+                    }
+                </section>
+
+                <hr class="section-divider" />
+
+                @* Specifications Key-Value List *@
+                <section class="info-section">
+                    <h2 class="section-heading">Specifications</h2>
+                    <dl class="specs-list">
+                        @foreach (var spec in Resource.Specifications)
+                        {
+                            <div class="spec-row">
+                                <dt class="spec-key">@spec.Key</dt>
+                                <dd class="spec-value">@spec.Value</dd>
+                            </div>
+                        }
+                    </dl>
+                </section>
+
+                <hr class="section-divider" />
+
+                @* Lab Location *@
+                <section class="info-section">
+                    <h2 class="section-heading with-icon">
+                        @* TODO: Add a location pin SVG icon in wwwroot/images/ *@
+                        <span>Lab location</span>
+                    </h2>
+                    <p class="location-primary">@Resource.Location</p>
+                    <p class="location-secondary">@Resource.OperatingHoursNote</p>
+                </section>
+
+                <hr class="section-divider" />
+
+                @* Usage Rules *@
+                <section class="info-section">
+                    <h2 class="section-heading">Usage rules</h2>
+                    <ul class="rules-list">
+                        @foreach (var rule in Resource.UsageRules)
+                        {
+                            <li>@rule</li>
+                        }
+                    </ul>
+                </section>
+
+                @* POTENTIAL COMPONENT: SupervisorCard.razor *@
+                @if (!string.IsNullOrWhiteSpace(Resource.SupervisorName))
+                {
+                    <section class="supervisor-card">
+                        <span class="eyebrow-label">RESOURCE SUPERVISOR</span>
+                        <div class="supervisor-name-row">
+                            <img src="images/icon-profile.svg" alt="Supervisor" class="inline-icon" />
+                            <strong>@Resource.SupervisorName</strong>
+                        </div>
+                        <span class="supervisor-email">@Resource.SupervisorEmail</span>
+                    </section>
+                }
+            </aside>
+
+            @* =========================================================================
+               RIGHT COLUMN — Weekly Availability + Booking Form
+               ========================================================================= *@
+            <div class="booking-workspace">
+
+                @* =====================================================================
+                   POTENTIAL COMPONENT: WeeklyAvailabilityGrid.razor
+                   Parameters: WeekStartDate, Days, TimeSlots, SlotStates,
+                               SelectedDate, SelectedStartTime, SelectedEndTime,
+                               OnWeekChanged, OnSlotSelected
+                   ===================================================================== *@
+                <section class="workspace-card">
+                    <div class="card-header">
+                        <h2>Weekly availability</h2>
+                        <span class="muted-meta">Local time · @TimeZoneLabel</span>
+                    </div>
+
+                    <div class="calendar-toolbar">
+                        <div class="week-navigator">
+                            <button type="button"
+                                    class="icon-btn"
+                                    aria-label="Previous week"
+                                    @onclick="() => ChangeWeekAsync(-7)">
+                                &lsaquo;
+                            </button>
+                            <span class="week-range-label">@WeekRangeLabel</span>
+                            <button type="button"
+                                    class="icon-btn"
+                                    aria-label="Next week"
+                                    @onclick="() => ChangeWeekAsync(7)">
+                                &rsaquo;
+                            </button>
+                        </div>
+
+                        <div class="calendar-legend">
+                            <span class="legend-item">
+                                <span class="legend-swatch available"></span> Available
+                            </span>
+                            <span class="legend-item">
+                                <span class="legend-swatch blocked"></span> Blocked
+                            </span>
+                            <span class="legend-item">
+                                <span class="legend-swatch selected"></span> Selected
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="schedule-grid-wrapper">
+                        <table class="schedule-grid">
+                            <thead>
+                                <tr>
+                                    <th class="time-col-header">TIME</th>
+                                    @foreach (var day in WeekDays)
+                                    {
+                                        var isSelectedDay = BookingForm.Date.Date == day.Date;
+                                        <th class="day-col-header @(isSelectedDay ? "selected-day" : string.Empty)">
+                                            <span class="day-name">@day.ToString("ddd")</span>
+                                            <strong class="day-number">@day.ToString("dd")</strong>
+                                        </th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var slot in TimeSlots)
+                                {
+                                    <tr>
+                                        <td class="time-cell">@slot.ToString(@"hh\:mm")</td>
+                                        @foreach (var day in WeekDays)
+                                        {
+                                            var slotInfo = GetSlotState(day, slot);
+                                            var isSelected = IsSlotSelected(day, slot);
+                                            var cellCss = isSelected ? "slot-selected" : GetSlotCssClass(slotInfo.State);
+
+                                            <td class="slot-cell @cellCss"
+                                                @onclick="() => HandleSlotClick(day, slot, slotInfo.State)">
+                                                @if (isSelected && slot == BookingForm.StartTime)
+                                                {
+                                                    <div class="slot-label-group">
+                                                        <span>Selected</span>
+                                                        <small>@FormatSelectedRange()</small>
+                                                    </div>
+                                                }
+                                                else if (!string.IsNullOrWhiteSpace(slotInfo.Label))
+                                                {
+                                                    <span class="slot-label">@slotInfo.Label</span>
+                                                }
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="calendar-footer">
+                        <span>@SlotSelectionHint</span>
+                        <span>Closes at @ClosingTimeLabel</span>
+                    </div>
+                </section>
+
+                @* =====================================================================
+                   POTENTIAL COMPONENT: BookingDetailsForm.razor
+                   Parameters: BookingForm, AvailableStartTimes, AvailableEndTimes,
+                               AvailableProjects, RequiresApproval, SupervisorName,
+                               OnSubmitBooking (EventCallback)
+                   ===================================================================== *@
+                <section class="workspace-card">
+                    <div class="card-header">
+                        <h2>Booking details</h2>
+                        <span class="muted-meta">* Required fields</span>
+                    </div>
+
+                    <EditForm Model="BookingForm" OnValidSubmit="HandleSubmitBookingAsync" class="booking-form">
+                        @* TODO: Add <DataAnnotationsValidator /> and <ValidationSummary /> once DTO validation attributes are wired *@
+
+                        <div class="form-row-three">
+                            <div class="form-field">
+                                <label for="booking-date">Date *</label>
+                                <input id="booking-date"
+                                       type="date"
+                                       class="form-input"
+                                       @bind="BookingForm.Date"
+                                       @bind:after="OnDateOrTimeChanged" />
+                            </div>
+
+                            <div class="form-field">
+                                <label for="booking-start">Start time *</label>
+                                <div class="input-with-icon">
+                                    <img src="images/icon-clock.svg" alt="" class="field-icon" />
+                                    <select id="booking-start"
+                                            class="form-select"
+                                            @bind="BookingForm.StartTime"
+                                            @bind:after="OnDateOrTimeChanged">
+                                        @foreach (var time in AvailableStartTimes)
+                                        {
+                                            <option value="@time">@time.ToString(@"hh\:mm")</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="booking-end">End time *</label>
+                                <div class="input-with-icon">
+                                    <img src="images/icon-clock.svg" alt="" class="field-icon" />
+                                    <select id="booking-end"
+                                            class="form-select"
+                                            @bind="BookingForm.EndTime"
+                                            @bind:after="OnDateOrTimeChanged">
+                                        @foreach (var time in AvailableEndTimes)
+                                        {
+                                            <option value="@time">@time.ToString(@"hh\:mm")</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="booking-purpose">Purpose of use *</label>
+                            <textarea id="booking-purpose"
+                                      rows="3"
+                                      class="form-textarea"
+                                      placeholder="Describe the purpose of your lab session..."
+                                      @bind="BookingForm.PurposeOfUse"></textarea>
+                        </div>
+
+                        <div class="form-row-project">
+                            <div class="form-field project-select-field">
+                                <label for="booking-project">Project / Group *</label>
+                                <select id="booking-project"
+                                        class="form-select"
+                                        @bind="BookingForm.ProjectOrGroupId">
+                                    <option value="">Select a project or group...</option>
+                                    @foreach (var project in AvailableProjects)
+                                    {
+                                        <option value="@project.Id">@project.Name</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="duration-summary">
+                                Total duration: <strong>@TotalDurationLabel</strong>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(SubmissionFeedback))
+                        {
+                            <div class="submission-feedback">@SubmissionFeedback</div>
+                        }
+
+                        <div class="form-footer">
+                            <div class="approval-note">
+                                @if (Resource.RequiresSupervisorApproval)
+                                {
+                                    <img src="images/icon-exclamation.svg" alt="Info" class="inline-icon" />
+                                    <span>
+                                        Your request will be sent to @Resource.SupervisorName. The booking is confirmed only after approval.
+                                    </span>
+                                }
+                            </div>
+
+                            <button type="submit"
+                                    class="btn-submit"
+                                    disabled="@IsSubmitting">
+                                @(IsSubmitting ? "Submitting..." : "Submit Booking Request")
+                            </button>
+                        </div>
+                    </EditForm>
+                </section>
+
+            </div>
+        </main>
+    }
+</div>
+
+@code {
+    // =========================================================================
+    // ROUTE PARAMETERS
+    // =========================================================================
+    [Parameter]
+    public int ResourceId { get; set; }
+
+    // =========================================================================
+    // STATE: Header & Page Lifecycle
+    // =========================================================================
+    private bool IsLoading { get; set; }
+    private bool IsSubmitting { get; set; }
+    private bool IsUserMenuOpen { get; set; }
+    private string? ErrorMessage { get; set; }
+    private string? SubmissionFeedback { get; set; }
+
+    // TODO: Replace with Shared.DTO.UserDTO / UserMinDTO
+    private UserHeaderModel? CurrentUser { get; set; }
+
+    // TODO: Replace with Shared.DTO.EquipmentDTO or a dedicated ResourceDetailDTO
+    private ResourceDetailModel? Resource { get; set; }
+
+    // =========================================================================
+    // STATE: Weekly Availability Calendar
+    // =========================================================================
+    private DateTime CurrentWeekStart { get; set; }
+    private List<DateTime> WeekDays => Enumerable.Range(0, 7)
+        .Select(offset => CurrentWeekStart.AddDays(offset))
+        .ToList();
+
+    // TODO: Populate dynamically from lab operating hours / booking rules
+    private List<TimeSpan> TimeSlots { get; set; } = new();
+    private string TimeZoneLabel { get; set; } = string.Empty;
+    private string ClosingTimeLabel { get; set; } = string.Empty;
+    private string SlotSelectionHint { get; set; } = "Select available slots to set your booking time. Each slot is 1 hour.";
+
+    // Key: (Date, StartTime) -> Slot status fetched from ReservationApiClient
+    private Dictionary<(DateTime Date, TimeSpan Slot

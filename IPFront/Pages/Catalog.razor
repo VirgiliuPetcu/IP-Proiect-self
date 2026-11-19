@@ -1,7 +1,432 @@
 ﻿@page "/catalog"
+@inject NavigationManager NavigationManager
+@* TODO: Inject your API clients and auth/state services here, e.g.:
+@inject ResourceApiClient ResourceApi
+@inject UserApiClient UserApi
+*@
 
-<h3>Catalog</h3>
+<div class="catalog-page">
+
+    @* =========================================================================
+       POTENTIAL COMPONENT: TopHeaderBar.razor
+       (Reusable across Catalog, MyReservations, Profile, Settings)
+       Parameters: SearchQuery, SelectedDate, SelectedTimeRange, CurrentUser
+       ========================================================================= *@
+    <header class="top-bar">
+        @* Search Input *@
+        <div class="search-wrapper">
+            <img src="images/icon-search.svg" alt="Search" class="input-icon" />
+            <input type="text"
+                   class="search-input"
+                   placeholder="Search equipment, rooms, or resource ID"
+                   @bind="SearchQuery"
+                   @bind:event="oninput"
+                   @bind:after="OnFilterChangedAsync" />
+            <kbd class="shortcut-badge">⌘ K</kbd>
+        </div>
+
+        <div class="top-bar-actions">
+            @* POTENTIAL COMPONENT: DateTimeRangePicker.razor
+               Can open a popover/modal to pick booking date & time slot *@
+            <button type="button" class="datetime-picker-trigger" @onclick="ToggleDateTimePicker">
+                <span class="picker-segment">
+                    <img src="images/icon-calendar.svg" alt="Date" class="picker-icon" />
+                    <span>@(SelectedDate?.ToString("dd MMM yyyy") ?? "Select date")</span>
+                </span>
+                <span class="vertical-divider"></span>
+                <span class="picker-segment">
+                    <img src="images/icon-clock.svg" alt="Time" class="picker-icon" />
+                    <span>@(string.IsNullOrWhiteSpace(SelectedTimeRange) ? "Select time" : SelectedTimeRange)</span>
+                </span>
+                <img src="images/icon-down-arrow.svg" alt="Expand" class="chevron-icon" />
+            </button>
+
+            @* TODO: Render Date/Time picker popover here when IsDateTimePickerOpen == true *@
+
+            @* POTENTIAL COMPONENT: Replace or wrap with existing <UserAvatar /> component *@
+            <button type="button" class="user-menu-trigger" @onclick="ToggleUserMenu">
+                @* TODO: Swap <img> with <UserAvatar /> once wired to user state *@
+                <img src="@(string.IsNullOrWhiteSpace(CurrentUser?.AvatarUrl) ? "images/icon-profile.svg" : CurrentUser.AvatarUrl)"
+                     alt="User profile"
+                     class="user-avatar-img" />
+                <div class="user-meta">
+                    <span class="user-name">@CurrentUser?.FullName</span>
+                    <span class="user-subtitle">@CurrentUser?.RoleAndDepartment</span>
+                </div>
+                <img src="images/icon-down-arrow.svg" alt="Menu" class="chevron-icon" />
+            </button>
+
+            @* TODO: Render User dropdown menu here when IsUserMenuOpen == true *@
+        </div>
+    </header>
+
+    <main class="catalog-content">
+
+        @* =========================================================================
+           PAGE HEADER
+           ========================================================================= *@
+        <section class="page-header">
+            <div class="page-title-group">
+                <h1>Lab Resource Equipment Catalog</h1>
+                <p>Find, check availability, and reserve resources for your next lab session.</p>
+            </div>
+
+            <button type="button" class="btn-outline" @onclick="NavigateToMyReservations">
+                My Reservations
+            </button>
+        </section>
+
+        @* =========================================================================
+           POTENTIAL COMPONENT: ResourceStatsBar.razor
+           Parameters: TotalCount (int), AvailableCount (int)
+           ========================================================================= *@
+        <section class="stats-bar">
+            <div class="stat-item">
+                <strong class="stat-value">@TotalResourcesCount</strong>
+                <span class="stat-label">resources on campus</span>
+            </div>
+
+            <span class="vertical-divider"></span>
+
+            <div class="stat-item">
+                <span class="status-dot available"></span>
+                <strong class="stat-value">@AvailableResourcesCount</strong>
+                <span class="stat-label">Available</span>
+            </div>
+        </section>
+
+        @* =========================================================================
+           POTENTIAL COMPONENT: CategoryFilterBar.razor
+           Parameters: Categories (List<string>), SelectedCategories (HashSet<string>),
+                       OnCategoryToggled (EventCallback<string>)
+           ========================================================================= *@
+        <section class="filter-bar">
+            <span class="filter-label">Filter by</span>
+            <div class="filter-chips">
+                @foreach (var category in AvailableCategories)
+                {
+                    var isSelected = SelectedCategories.Contains(category);
+                    <button type="button"
+                            class="filter-chip @(isSelected ? "active" : string.Empty)"
+                            @onclick="() => ToggleCategoryAsync(category)">
+                        @category
+                    </button>
+                }
+                @* TODO: Optional "Clear filters" button when SelectedCategories.Count > 0 *@
+            </div>
+        </section>
+
+        @* =========================================================================
+           SECTION TOOLBAR (Title + Sort Dropdown)
+           ========================================================================= *@
+        <section class="results-toolbar">
+            <div class="results-heading">
+                <h2>Explore resources</h2>
+                <span class="results-count">@FilteredResourcesCount resources</span>
+            </div>
+
+            <div class="sort-control">
+                <label for="sort-select">Sort by:</label>
+                <select id="sort-select"
+                        class="sort-select"
+                        @bind="SelectedSortOption"
+                        @bind:after="OnFilterChangedAsync">
+                    @foreach (var option in SortOptions)
+                    {
+                        <option value="@option">@option</option>
+                    }
+                </select>
+            </div>
+        </section>
+
+        @* =========================================================================
+           RESOURCE GRID
+           ========================================================================= *@
+        <section class="resource-grid-section">
+            @if (IsLoading)
+            {
+                @* POTENTIAL COMPONENT: ResourceCardSkeleton.razor *@
+                <div class="state-message">Loading resources...</div>
+            }
+            else if (!string.IsNullOrWhiteSpace(ErrorMessage))
+            {
+                <div class="state-message error">@ErrorMessage</div>
+            }
+            else if (DisplayedResources.Count == 0)
+            {
+                @* POTENTIAL COMPONENT: EmptyState.razor *@
+                <div class="state-message">No resources match your current filters.</div>
+            }
+            else
+            {
+                <div class="resource-grid">
+                    @foreach (var resource in DisplayedResources)
+                    {
+                        @* =========================================================================
+                           POTENTIAL COMPONENT: ResourceCard.razor
+                           Parameters: Resource (EquipmentDTO / ResourceViewModel),
+                                       OnBookClicked (EventCallback<int>)
+                           ========================================================================= *@
+                        <article class="resource-card">
+                            <div class="card-media">
+                                @if (!string.IsNullOrWhiteSpace(resource.ImageUrl))
+                                {
+                                    <img src="@resource.ImageUrl" alt="@resource.Name" class="resource-image" />
+                                }
+                                else
+                                {
+                                    @* Placeholder when no image URL is returned by the API *@
+                                    <div class="image-placeholder">
+                                        @* TODO: Add a placeholder SVG icon in wwwroot/images/ *@
+                                        <span>RESOURCE IMAGE</span>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="card-body">
+                                <div class="card-meta-row">
+                                    <span class="resource-category">@resource.CategoryName</span>
+
+                                    @* POTENTIAL COMPONENT: StatusBadge.razor *@
+                                    <span class="status-badge @GetStatusCssClass(resource.Status)">
+                                        <span class="badge-indicator"></span>
+                                        @resource.Status
+                                    </span>
+                                </div>
+
+                                <h3 class="resource-title">@resource.Name</h3>
+                                <p class="resource-id">ID: @resource.ResourceCode</p>
+
+                                <div class="resource-location">
+                                    @* TODO: Add a location pin SVG icon in wwwroot/images/ *@
+                                    <span>@resource.Location</span>
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(resource.AvailabilityNote))
+                                {
+                                    <p class="resource-note">@resource.AvailabilityNote</p>
+                                }
+
+                                <button type="button"
+                                        class="btn-book"
+                                        disabled="@(!resource.CanBook)"
+                                        @onclick="() => HandleBookResourceAsync(resource)">
+                                    Book Resource
+                                </button>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+
+        @* =========================================================================
+           POTENTIAL COMPONENT: PaginationBar.razor
+           Parameters: CurrentPage, TotalPages, PageSize, TotalItems,
+                       OnPageChanged (EventCallback<int>)
+           ========================================================================= *@
+        <footer class="pagination-bar">
+            <span class="pagination-summary">
+                Showing @StartItemIndex–@EndItemIndex of @FilteredResourcesCount resources
+            </span>
+
+            <div class="pagination-controls">
+                <button type="button"
+                        class="page-btn"
+                        disabled="@(CurrentPage <= 1)"
+                        @onclick="() => GoToPageAsync(CurrentPage - 1)">
+                    Previous
+                </button>
+
+                @for (int p = 1; p <= TotalPages; p++)
+                {
+                    var pageNumber = p;
+                    <button type="button"
+                            class="page-btn page-number @(pageNumber == CurrentPage ? "active" : string.Empty)"
+                            @onclick="() => GoToPageAsync(pageNumber)">
+                        @pageNumber
+                    </button>
+                }
+
+                <button type="button"
+                        class="page-btn"
+                        disabled="@(CurrentPage >= TotalPages)"
+                        @onclick="() => GoToPageAsync(CurrentPage + 1)">
+                    Next
+                </button>
+            </div>
+        </footer>
+
+    </main>
+</div>
+
+@* TODO: POTENTIAL COMPONENT: BookingModal.razor
+   Render booking confirmation/time-slot modal here when SelectedResourceForBooking != null *@
 
 @code {
+    // =========================================================================
+    // STATE: Header & User
+    // =========================================================================
+    private string SearchQuery { get; set; } = string.Empty;
+    private DateTime? SelectedDate { get; set; }
+    private string SelectedTimeRange { get; set; } = string.Empty;
+    private bool IsDateTimePickerOpen { get; set; }
+    private bool IsUserMenuOpen { get; set; }
 
+    // TODO: Replace UserHeaderModel with your Shared.DTO.UserDTO / UserMinDTO
+    private UserHeaderModel? CurrentUser { get; set; }
+
+    // =========================================================================
+    // STATE: Stats, Filters & Sorting
+    // =========================================================================
+    private int TotalResourcesCount { get; set; }
+    private int AvailableResourcesCount { get; set; }
+    private int FilteredResourcesCount { get; set; }
+
+    // TODO: Populate from backend categories/labs endpoint or Shared.DTO.Enums
+    private List<string> AvailableCategories { get; set; } = new();
+    private HashSet<string> SelectedCategories { get; set; } = new();
+
+    // TODO: Populate sort options (e.g., from an enum or config)
+    private List<string> SortOptions { get; set; } = new();
+    private string SelectedSortOption { get; set; } = string.Empty;
+
+    // =========================================================================
+    // STATE: Resource Data & Pagination
+    // =========================================================================
+    private bool IsLoading { get; set; }
+    private string? ErrorMessage { get; set; }
+
+    // TODO: Replace ResourceCardModel with your Shared.DTO.EquipmentDTO / Resource DTO
+    private List<ResourceCardModel> DisplayedResources { get; set; } = new();
+    private ResourceCardModel? SelectedResourceForBooking { get; set; }
+
+    private int CurrentPage { get; set; } = 1;
+    private int PageSize { get; set; } = 6;
+    private int TotalPages => FilteredResourcesCount == 0
+        ? 1
+        : (int)Math.Ceiling((double)FilteredResourcesCount / PageSize);
+
+    private int StartItemIndex => FilteredResourcesCount == 0
+        ? 0
+        : ((CurrentPage - 1) * PageSize) + 1;
+
+    private int EndItemIndex => Math.Min(CurrentPage * PageSize, FilteredResourcesCount);
+
+    // =========================================================================
+    // LIFECYCLE
+    // =========================================================================
+    protected override async Task OnInitializedAsync()
+    {
+        // TODO: Initialize default SelectedDate / SelectedTimeRange if needed
+        // TODO: Load CurrentUser from UserApiClient or AuthStateProvider
+        // TODO: Load AvailableCategories and SortOptions
+        await LoadResourcesAsync();
+    }
+
+    // =========================================================================
+    // DATA LOADING & ACTIONS
+    // =========================================================================
+    private async Task LoadResourcesAsync()
+    {
+        IsLoading = true;
+        ErrorMessage = null;
+
+        try
+        {
+            // TODO: Call ResourceApiClient with SearchQuery, SelectedDate, SelectedTimeRange,
+            //       SelectedCategories, SelectedSortOption, CurrentPage, PageSize.
+            // TODO: Map API response to DisplayedResources, TotalResourcesCount,
+            //       AvailableResourcesCount, and FilteredResourcesCount.
+            await Task.CompletedTask;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task OnFilterChangedAsync()
+    {
+        CurrentPage = 1;
+        await LoadResourcesAsync();
+    }
+
+    private async Task ToggleCategoryAsync(string category)
+    {
+        if (!SelectedCategories.Add(category))
+        {
+            SelectedCategories.Remove(category);
+        }
+
+        CurrentPage = 1;
+        await LoadResourcesAsync();
+    }
+
+    private async Task GoToPageAsync(int page)
+    {
+        if (page < 1 || page > TotalPages || page == CurrentPage)
+        {
+            return;
+        }
+
+        CurrentPage = page;
+        await LoadResourcesAsync();
+    }
+
+    private Task HandleBookResourceAsync(ResourceCardModel resource)
+    {
+        // TODO: Open BookingModal or navigate to a reservation page with resource.Id
+        SelectedResourceForBooking = resource;
+        return Task.CompletedTask;
+    }
+
+    private void NavigateToMyReservations()
+    {
+        // TODO: Verify the exact @page route used in MyReservations.razor
+        NavigationManager.NavigateTo("/my-reservations");
+    }
+
+    private void ToggleDateTimePicker() => IsDateTimePickerOpen = !IsDateTimePickerOpen;
+    private void ToggleUserMenu() => IsUserMenuOpen = !IsUserMenuOpen;
+
+    private static string GetStatusCssClass(string status)
+    {
+        // TODO: Switch on your Shared.DTO.Enums status enum instead of string
+        return status?.ToLowerInvariant() switch
+        {
+            "available" => "status-available",
+            "maintenance" => "status-maintenance",
+            "booked" or "reserved" => "status-booked",
+            _ => "status-default"
+        };
+    }
+
+    // =========================================================================
+    // PLACEHOLDER VIEW MODELS
+    // TODO: Delete these once you bind directly to Shared.DTO classes
+    // =========================================================================
+    private sealed class UserHeaderModel
+    {
+        public string FullName { get; set; } = string.Empty;
+        public string RoleAndDepartment { get; set; } = string.Empty;
+        public string? AvatarUrl { get; set; }
+    }
+
+    private sealed class ResourceCardModel
+    {
+        public int Id { get; set; }
+        public string ResourceCode { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string CategoryName { get; set; } = string.Empty;
+        public string Location { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public string? AvailabilityNote { get; set; }
+        public string? ImageUrl { get; set; }
+        public bool CanBook { get; set; }
+    }
 }
