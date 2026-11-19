@@ -26,8 +26,12 @@ namespace saxafon.Models
         public string? phone_number { get; set; }
         public Shared.Role role { get; set; }
         [MaxLength(256)]
-
         public string passwordHash { get; set; } = null!;
+
+        [MaxLength(500)]
+        public string? profile_image_url { get; set; }
+
+        public DateTime? profile_image_updated_at { get; set; }
 
         public DateTime created_at { get; set; }
         public DateTime updated_at { get; set; }

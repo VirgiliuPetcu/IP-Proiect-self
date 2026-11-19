@@ -32,7 +32,7 @@ namespace Shared.DTO
 
     public record UserProfileDate(
         string name,
-        string 
+         
         
     );
 

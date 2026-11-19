@@ -20,5 +20,13 @@ namespace saxafon.Models
         public DateTime created_at { get; set; }
         public DateTime updated_at { get; set; }
         public DateTime? deleted_at { get; set; }
+
+        [MaxLength(500)]
+        public string? image_url { get; set; }
+
+        public int max_concurrent_bookings { get; set; } = 1;
+        public int? min_booking_minutes { get; set; }
+        public int? max_booking_minutes { get; set; }
+        public int? max_bookings_per_user_per_week { get; set; }
     }
 }
